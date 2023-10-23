@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Music Genre Classifier</title>
+</head>
+<body>
+    <h1>Music Genre Classifier</h1>
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".wav">
+        <input type="submit" value="Upload and Predict">
+    </form>
+
+    <div class="audio-controls">
+        <button id="record-button">Record</button>
+    </div>
+    
+    
+
+    
+
+    {% if prediction %}
+        <h2>Predicted Genre: {{ prediction.genre }}</h2>
+        <img src="{{ prediction.plot_path }}" alt="Genre Prediction Chart">
+        {% if prediction.probabilities %}
+            <h3>Genre Probabilities:</h3>
+            <ul>
+                <li>Disco: {{ prediction.probabilities[0] }}</li>
+                <li>Pop: {{ prediction.probabilities[1] }}</li>
+                <li>Classical: {{ prediction.probabilities[2] }}</li>
+                <li>Metal: {{ prediction.probabilities[3] }}</li>
+                <li>Rock: {{ prediction.probabilities[4] }}</li>
+                <li>Blues: {{ prediction.probabilities[5] }}</li>
+                <li>Hip-Hop: {{ prediction.probabilities[6] }}</li>
+                <li>Reggae: {{ prediction.probabilities[7] }}</li>
+                <li>Country: {{ prediction.probabilities[8] }}</li>
+                <li>Jazz: {{ prediction.probabilities[9] }}</li>
+            </ul>
+        {% endif %}
+    {% endif %}
+    <button><a href="/predict">predict</a></button>
+    
+
+   
+
+    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+   
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    const recordButton = document.getElementById('record-button');
+
+    recordButton.addEventListener('click', function() {
+        // Send a request to the server to initiate audio recording
+        fetch('/record', {
+            method: 'POST',
+        })
+        .then(response => {
+            if (response.status === 200) {
+                console.log('Audio recording started successfully.');
+            } else {
+                console.error('Error:', response.status);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+});
+
+    </script>
+        
+        </body>
+        </html>

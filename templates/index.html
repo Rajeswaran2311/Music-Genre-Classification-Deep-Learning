@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Music Gnere Detection</title>
+  <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Allerta+Stencil">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+</head>
+
+<body>
+
+
+  <div class="login">
+    <div id="head" style="font-family: Allerta Stencil, Sans-serif;">
+      <h1 style="font-size:6rem;">Genre Detection</h1>
+    </div>
+
+
+    <!-- Main Input For Receiving Query to our ML -->
+    <form action="{{ url_for('upload')}}" method="post" enctype="multipart/form-data">
+      <input type="file" name="file" placeholder="Audio" required="required" accept=".wav" id="upload" />
+      <div class="record-audio">
+        <button id="start-record">Start Recording</button>
+        <button id="stop-record" disabled>Stop Recording</button>
+        <button><a href="/predict"> Predict </a></button>
+      </div>
+      <br>
+      <audio id="audio" controls>
+        <source src="" id="src" />
+      </audio>
+      <!--input type="text" name="sales in first month" placeholder="sales in first month" required="required" />
+		<input type="text" name="sales in second month" placeholder="sales in second month" required="required" /-->
+      <button type="submit" class="btn btn-primary btn-block btn-large">Click to Predict genre of given audio</button>
+    </form>
+
+
+
+
+
+  </div>
+</body>
+<script>
+  function handleFiles(event) {
+    var files = event.target.files;
+    $("#src").attr("src", URL.createObjectURL(files[0]));
+    document.getElementById("audio").load();
+  }
+
+  document.getElementById("upload").addEventListener("change", handleFiles, false);
+</script>
+<script>
+  // Create audio context and recorder objects
+  let audioContext;
+  let mediaRecorder;
+  let chunks = [];
+
+  // Function to initialize the audio context and recorder
+  async function setupAudioRecording() {
+    try {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      mediaRecorder = new MediaRecorder(stream);
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/wav' });
+        const audioUrl = URL.createObjectURL(blob);
+        document.getElementById('src').src = audioUrl;
+        document.getElementById('audio').load();
+
+        // Send the recorded audio to the server
+        const formData = new FormData();
+        formData.append('file', blob, 'audio.wav');
+        fetch('/record', {
+          method: 'POST',
+          body: formData,
+        })
+          
+      };
+    } catch (error) {
+      console.error('Error setting up audio recording', error);
+    }
+  }
+
+  document.getElementById('upload').addEventListener('change', handleFiles, false);
+  document.getElementById('start-record').addEventListener('click', () => {
+    mediaRecorder.start();
+    document.getElementById('start-record').disabled = true;
+    document.getElementById('stop-record').disabled = false;
+  });
+  document.getElementById('stop-record').addEventListener('click', () => {
+    mediaRecorder.stop();
+    document.getElementById('start-record').disabled = false;
+    document.getElementById('stop-record').disabled = true;
+  });
+
+  // Call the setup function to initialize audio recording
+  setupAudioRecording();
+</script>
+
+</html>

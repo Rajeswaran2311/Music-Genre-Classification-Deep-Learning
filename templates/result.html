@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction</title>
+    <style>
+        body{
+            background-color: #0a0320;
+            width: 100%;
+            height: 100%;
+        }
+        .container{
+            width: 50%;
+            height: 600px;
+            border: 2px solid whitesmoke;
+            color: white;
+            margin: auto;
+            margin-bottom: 320px;
+            padding: 10px;
+        }
+        .container img{
+            width: 100%;
+            height: 300px;
+        }
+
+    </style>
+    
+</head>
+<body>
+    <div class="container">
+    {% if prediction %}
+    <h1 style="color: white;text-align: center;">Prediction Result</h1>
+    {% if prediction.genre == "Disco" %}
+    <center><img src="{{ 'static/disco.jpg' }}" alt=""></center>
+{% elif prediction.genre == "Classical" %}
+    <center><img src="{{ ('static/classic.jpg') }}" alt=""></center>
+{% elif prediction.genre == "Rock" %}
+    <center><img src="{{ 'static/rock.jpg' }}" alt=""></center>
+{% elif prediction.genre == "Metal" %}
+    <center><img src="{{ ('static/metal.jpg') }}" alt=""></center>
+{% elif prediction.genre == "Pop" %}
+    <center><img src="{{ ('static/pop.jpeg') }}" alt=""></center>
+{% elif prediction.genre == 'Jazz' %}
+    <center><img src="{{ ('static/jazz.jpeg') }}" alt=""></center>
+{% elif prediction.genre == 'Country' %}
+    <center><img src="{{ ('static/country.jpeg') }}" alt=""></center>
+{% elif prediction.genre == 'Hiphop' %}
+    <center><img src="{{ ('static/hiphop.jpeg') }}" alt=""></center>
+{% elif prediction.genre == 'Blues' %}
+    <center><img src="{{ ('static/blue.jpg') }}" alt=""></center>
+{% else %}
+    <center><img src="{{ ('static/reggae.jpg') }}" alt=""></center>
+{% endif %}
+
+
+
+    <p style="color: white;text-align: center;font-size: 100px;text-decoration: none;"> {{ prediction.genre }}</p>
+    <!-- <a href="return/"><input type="button" id="submit-button" class="neon-button" value="New Prediction"></a> -->
+   
+    <!-- <img src="{{ prediction.plot_path }}" alt="Genre Prediction Chart"> -->
+{% endif %}
+</div>
+</body>
+</html>
