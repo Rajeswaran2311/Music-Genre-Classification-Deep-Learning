@@ -1,0 +1,10 @@
+Flask
+Flask-Uploads
+Werkzeug
+pyaudio
+pydub
+librosa
+matplotlib
+numpy
+tensorflow
+Flask-Reuploaded
