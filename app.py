@@ -26,7 +26,7 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 44100
 CHUNK = 1024
-AMPLIFICATION_FACTOR = 2.0
+AMPLIFICATION_FACTOR = 2.0 
 model = load_model('models/MusicGenre_CNN_79.73.h5')
 def process_input(audio_blob, track_duration):
     SAMPLE_RATE = 22050
