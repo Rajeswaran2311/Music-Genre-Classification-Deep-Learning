@@ -3,5 +3,4 @@
 set -o errexit
 
 pip install --upgrade pip
-pip install -r packages.txt
 pip install -r requirements.txt
