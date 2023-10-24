@@ -1,9 +1,6 @@
 Flask
 Flask-Uploads
 Werkzeug
-pipwin
-portaudio19-dev
-PyAudio
 pydub
 librosa
 matplotlib
