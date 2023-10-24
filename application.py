@@ -1,8 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, send_file, jsonify
 from flask_uploads import UploadSet, configure_uploads, AUDIO
 from werkzeug.datastructures import FileStorage
-import pyaudio
-from pydub import AudioSegment
 import io
 import math
 import wave
@@ -23,11 +21,7 @@ app = Flask(__name__)
 audio_files = UploadSet('audio', AUDIO)
 UPLOAD_FOLDER = 'uploads'  # Directory to save uploaded audio files
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-FORMAT = pyaudio.paInt16
-CHANNELS = 1
-RATE = 44100
-CHUNK = 1024
-AMPLIFICATION_FACTOR = 2.0
+
 model = load_model('models/MusicGenre_CNN_79.73.h5')
 def process_input(audio_blob, track_duration):
     SAMPLE_RATE = 22050
@@ -40,21 +34,7 @@ def process_input(audio_blob, track_duration):
     num_mfcc_vectors_per_segment = math.ceil(samples_per_segment / HOP_LENGTH)
 
     audio_data = audio_blob.read()
-
-    # Check if the audio is in WAV format; if not, convert it to WAV
-    if not audio_blob.filename.endswith('.wav'):
-        # Create a temporary WAV file for the converted audio
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as temp_wav_file:
-            # Convert the audio to WAV format using pydub
-            audio = AudioSegment.from_file(io.BytesIO(audio_data))
-            audio.export(temp_wav_file.name, format='wav')
-            audio_data = temp_wav_file.read()
-
-    # Save the converted audio to a file (for verification purposes)
-    with open('converted_audio.wav', 'wb') as converted_audio_file:
-        converted_audio_file.write(audio_data)
-
-    signal, sample_rate = sf.read('converted_audio.wav')
+    signal, sample_rate = librosa.load(io.BytesIO(audio_data), sr=SAMPLE_RATE)
 
     mfcc_features = []
 
@@ -66,11 +46,8 @@ def process_input(audio_blob, track_duration):
         mfcc = librosa.feature.mfcc(y=signal[start:finish], sr=sample_rate, n_mfcc=NUM_MFCC, n_fft=N_FTT, hop_length=HOP_LENGTH)
         mfcc = mfcc.T
         mfcc_features.append(mfcc.tolist())
-    if not audio_blob.filename.endswith('.wav'):
-        os.remove(temp_wav_file.name)
+
     return mfcc_features
-
-
 def predict_genre(audio_blob):
     # Process the input audio and get MFCC features
     mfcc_features = process_input(audio_blob, track_duration=30)
@@ -188,16 +165,7 @@ def record():
         # Save the uploaded audio file
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'audio.wav')
         file.save(file_path)
-    if 'file' in request.files:
-        audio_blob = request.files['file']
-    if audio_blob:
-        predicted_genre, probabilities = predict_genre(audio_blob)
-        
-        plot_path = visualize_prediction(predicted_genre, probabilities)
-        
-        return render_template('demo1.html', prediction={"genre": predicted_genre, "plot_path": plot_path, 'probabilities': probabilities})
-    else:
-        return 'No audio found.'
+    
 
 
         # Make genre prediction
